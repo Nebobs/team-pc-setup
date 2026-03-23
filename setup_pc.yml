@@ -17,6 +17,7 @@
         repo: "ppa:deadsnakes/ppa"
         state: present
         update_cache: yes
+          
     - name: Install packages
       apt:
         name: "{{ item }}"
@@ -63,12 +64,24 @@
         group: "{{ developer_user }}"
         mode: '0755'
 
-    - name: Install rpyc in virtualenv
-      pip:
-        name: rpyc 
-        virtualenv: "{{ venv_path }}"
-        virtualenv_command: python3 -m venv
+    - name: Create virtualenv using virtualenvwrapper
+      shell: |
+        export WORKON_HOME=/home/{{ developer_user }}/.virtualenvs
+        source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+        mkvirtualenv team_venv
+      args:
+        creates: "{{ venv_path }}"
+        executable: /bin/bash
       become_user: "{{ developer_user }}"
+
+
+
+    - name: Install rpyc inside virtualenv
+      pip: 
+        name: rpyc
+        executable: "{{ venv_path }}/bin/pip" 
+      become_user: "{{ developer_user }}"
+
                         
     - name: Copy MOTD
       copy: 
