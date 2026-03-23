@@ -35,7 +35,7 @@
     - name: Copy certificate
       copy:
         src: files/team-dummy-ca.crt
-        dest: /usr/local/share/ca-certificates/team.crt
+        dest: /usr/local/share/ca-certificates/team-dummy-ca.crt
       notify: update ca certificates
 
     - name: Create user
