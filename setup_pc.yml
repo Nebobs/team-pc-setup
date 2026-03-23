@@ -7,10 +7,6 @@
     developer_user: devuser
     venv_path: "/home/devuser/.virtualenvs/team_venv"
 
-  handlers:
-    - name: update ca certificates
-      command: update-ca-certificates
-
   tasks:
     - name: Add repository
       apt_repository:
@@ -65,13 +61,10 @@
         mode: '0755'
 
     - name: Create virtualenv using virtualenvwrapper
-      shell: |
-        export WORKON_HOME=/home/{{ developer_user }}/.virtualenvs
-        source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-        mkvirtualenv team_venv
+      shell: bash -ic "mkvirtualenv team_venv"
       args:
         creates: "{{ venv_path }}"
-        executable: /bin/bash
+      become: yes
       become_user: "{{ developer_user }}"
 
 
@@ -79,7 +72,7 @@
     - name: Install rpyc inside virtualenv
       pip: 
         name: rpyc
-        executable: "{{ venv_path }}/bin/pip" 
+        virtualenv: "{{ venv_path }}" 
       become_user: "{{ developer_user }}"
 
                         
@@ -87,3 +80,8 @@
       copy: 
         src: files/custom-motd
         dest: /etc/motd
+
+  handlers:
+    - name: update ca certificates
+      command: update-ca-certificates
+
